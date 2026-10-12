@@ -91,7 +91,7 @@ An independently written, reproducible churn classification example
 using fictional subscriber data. Includes model evaluation,
 visualisations, automated tests, and an illustrative SQL query.
 
-[Explore the demo](synthetic-demo/README.md)
+[Explore the demo](synthetic_demo/README.md)
 
 All demo data and reported metrics are synthetic and are not results
 from the historical project.
