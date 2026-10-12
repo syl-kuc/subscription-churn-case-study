@@ -1,99 +1,104 @@
-# Synthetic Churn Prediction Demo
+# Subscription Churn Prediction: From Behavioural Data to Risk Scoring
 
-This is an independent, reproducible demonstration of a subscription churn classification workflow using **fictional synthetic data only**. It is separate from the historical case study in the repository root.
+**Project type:** Historical data analytics and machine learning project  
+**Tools:** Python, pandas, SQL/Hive, scikit-learn, imbalanced-learn, XGBoost
 
-## What it demonstrates
+## Overview
 
-- Reproducible synthetic subscriber data generation
-- A clearly documented synthetic target: churn within the next 30 days
-- Stratified train/test split
-- Preprocessing in a scikit-learn pipeline
-- Logistic Regression baseline with class weighting
-- Evaluation with ROC-AUC, average precision, precision, recall, F1 and a confusion matrix
-- Precision–recall curve and coefficient chart
-- An illustrative SQL feature-aggregation query
+This historical project explored how subscription lifecycle information and customer engagement behaviour could be used to identify subscribers at risk of churn.
 
-## Run it locally
+The workflow combined behavioural feature engineering, classification model comparison, recall-focused hyperparameter tuning, and churn-risk scoring. Separate scoring scripts applied a trained model to generate churn probabilities for downstream analysis.
 
-Python 3.10+ is recommended.
+This case study documents the workflow supported by the historical scripts. Confidential source code, internal infrastructure details, and original customer data are not included.
 
-```bash
-cd synthetic_demo
-python -m venv .venv
+## Business question
 
-# macOS/Linux:
-source .venv/bin/activate
+**Can subscription history and engagement behaviour help identify customers who may be at risk of cancelling?**
 
-# Windows PowerShell:
-# .venv\Scripts\Activate.ps1
+Identifying churn cases was an important modelling objective, making recall a key consideration during model tuning.
 
-pip install -r requirements.txt
-python churn_demo.py
-```
+## Historical workflow
 
-The script generates files under `outputs/` and `figures/`. The dataset is generated in memory; no real subscriber records are used.
+The workflow combined subscription records with behavioural aggregates, including comment and voting activity calculated over 21-day windows.
 
-## Example results (synthetic data only)
+[View the churn modelling workflow diagram](docs/workflow.md)
 
-A reference run on 5,000 generated rows produced:
+## Data and feature engineering
 
-| Metric | Value |
-|---|---:|
-| ROC-AUC | 0.811 |
-| Average precision | 0.508 |
-| Precision at threshold 0.50 | 0.343 |
-| Recall at threshold 0.50 | 0.697 |
-| F1 at threshold 0.50 | 0.460 |
+Features represented several aspects of the subscription lifecycle and user behaviour:
 
-The test set contained 1,250 generated rows. Confusion matrix in `[[TN, FP], [FN, TP]]` order: `[[811, 251], [57, 131]]`.
+- **Subscription lifecycle:** date-derived subscription features, offer type, subscription term, and discount usage.
+- **Payments:** historical payment counts and payment-related indicators.
+- **Engagement:** page views, reading behaviour, completed-reading share, comments, and voting activity.
+- **Behavioural patterns:** acquisition source, device usage, time-of-day patterns, and weekend activity.
 
-**These values are illustrative results from a synthetic data-generating process—not performance metrics from the historical project, a real customer dataset, or evidence of business impact.** Values can vary with package versions.
+The workflow included missing-value handling, categorical encoding, and variance inflation factor (VIF) analysis as part of feature review.
 
-## Visual results
+## Modelling approach
 
-The charts below are generated from the synthetic test set and are included so the workflow can be reviewed directly on GitHub.
+The historical training script compared Logistic Regression and Gradient Boosting, including selected experiments with class-imbalance handling.
 
-### Precision–recall curve
+| Method | Role described by the scripts |
+|---|---|
+| Logistic Regression | Baseline classification approach |
+| Gradient Boosting | Non-linear classification approach |
+| SMOTE | Class-imbalance handling in selected experiments |
+| StandardScaler | Scaling in a Logistic Regression experiment |
+| GridSearchCV | Hyperparameter tuning |
+| Recall scoring | Objective used in the Gradient Boosting parameter search |
 
-![Precision–recall curve for the synthetic test set](figures/precision_recall_curve.png)
+The parameter search evaluated different tree depths and learning rates using cross-validation, with recall as the optimisation metric.
 
-This curve illustrates the trade-off between precision and recall as the classification threshold changes. Because the synthetic positive class is relatively uncommon, this view complements ROC-AUC.
+## Evaluation and code-review notes
 
-### Confusion matrix
+The scripts included classification reports, confusion matrices, ROC-related analysis, and feature-importance inspection.
 
-![Confusion matrix for the synthetic test set](figures/confusion_matrix.png)
+A review of the historical code identified a methodology issue: some ROC-AUC calculations and ROC-curve inputs used hard class predictions rather than predicted probabilities. ROC-AUC and ROC curves should use continuous scores, such as predicted probabilities.
 
-At the illustrative threshold of 0.50, the reference run produced 811 true negatives, 251 false positives, 57 false negatives, and 131 true positives. These counts apply only to this generated test sample.
+The original evaluation outputs were not included in the material reviewed. Therefore, this case study does not report verified historical performance figures or claim a measured business impact.
 
-### Logistic Regression coefficients
+## Churn-risk scoring and monitoring support
 
-![Largest Logistic Regression coefficients for the synthetic demo](figures/top_coefficients.png)
+Separate scoring scripts loaded a trained XGBoost model and generated churn-risk probabilities for downstream analysis. A further export calculated daily average feature values by observation date, providing a basis for examining changes in input features over time.
 
-The chart displays the largest absolute coefficients from the fitted model. Numeric features were standardised and categorical features one-hot encoded. These coefficients describe associations in the artificial data-generating setup; they are not causal effects.
+The scripts demonstrate probability scoring and feature-summary exports. They do not, by themselves, establish a fully automated production monitoring system or a quantified improvement in retention.
 
-**Reminder:** all charts and metrics here are based on synthetic data only. They are not results from the historical project or a real customer population.
+## Key learnings
 
-## How the target is generated
+- Feature engineering can combine subscription history with different dimensions of customer engagement.
+- Recall-focused tuning should be considered alongside precision and the cost of false positives.
+- ROC-AUC and ROC curves should use predicted probabilities or other continuous scores.
+- For longitudinal customer data, time-based validation and checks for target leakage are important.
+- Scoring and monitoring considerations extend beyond model training.
 
-The code creates an illustrative probability from recent inactivity, reading frequency, tenure, payment history, plan, discount use, acquisition channel, and monthly-equivalent price. A random draw from that probability becomes `churn_next_30d`. Since the label is artificially constructed from the same features, the resulting scores only validate that the demo workflow runs; they do not estimate real-world churn performance.
+## Synthetic Python demo
 
-## Evaluation and limitations
+To demonstrate a reproducible machine-learning workflow without publishing employer code or data, this repository also includes an **independently written demo using fictional synthetic data**.
 
-- ROC-AUC and the precision–recall curve use predicted probabilities, not hard class labels.
-- The 0.50 classification threshold is a demonstration choice. A real use case should select a threshold on validation data based on the cost of missed churners and false positives.
-- The demo uses a random stratified split. Real longitudinal subscription data should consider a time-based split, prediction-time feature availability, and repeated-customer leakage.
-- Model coefficients are not causal effects.
-- This is a baseline demonstration, not a production deployment.
+[Open the synthetic demo README](synthetic_demo/README.md) · [Browse the Python script](synthetic_demo/churn_demo.py)
 
-## Files
+The following charts are generated by that demo and use **synthetic test data only**. They are not outputs from the historical project.
 
-- `churn_demo.py` — data generator, model pipeline, evaluation and chart output
-- `requirements.txt` — Python dependencies
-- `example_feature_aggregation.sql` — illustrative SQL pattern with fictional table names
-- `tests/test_churn_demo.py` — small automated tests
-- `figures/` — generated charts
-- `outputs/metrics.json` — generated example metrics
+### Precision–recall curve — synthetic demo
 
-## Relationship to the historical case study
+![Precision–recall curve generated from synthetic test data](synthetic_demo/figures/precision_recall_curve.png)
 
-The repository root describes the historical workflow from prior scripts. This demo is independently written and uses synthetic data only. It does not reproduce the original training pipeline or make claims about the original model's performance.
+### Confusion matrix — synthetic demo
+
+![Confusion matrix generated from synthetic test data](synthetic_demo/figures/confusion_matrix.png)
+
+At the illustrative threshold of 0.50, the synthetic reference run produced 811 true negatives, 251 false positives, 57 false negatives, and 131 true positives.
+
+### Logistic Regression coefficients — synthetic demo
+
+![Largest Logistic Regression coefficients from the synthetic demo](synthetic_demo/figures/top_coefficients.png)
+
+The coefficients reflect associations in the artificial data-generating setup, not causal effects or conclusions about real subscribers.
+
+**Synthetic demo results:** ROC-AUC 0.811, average precision 0.508, precision 0.343, recall 0.697, and F1 0.460 on the generated test set. These values demonstrate the example workflow only and must not be interpreted as historical or production performance.
+
+## Scope and confidentiality
+
+This is a retrospective case study of a historical project workflow. The scripts reviewed do not provide the original metric outputs needed to verify model performance, and no retention uplift or financial impact is claimed.
+
+Original employer code, customer data, internal endpoints, private infrastructure details, and credentials are intentionally excluded. The accompanying public demo uses independently written code and synthetic data.
