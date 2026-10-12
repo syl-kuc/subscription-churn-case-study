@@ -1,0 +1,45 @@
+{
+  "data_note": "Synthetic fictional data; these metrics are not historical business results.",
+  "rows": 5000,
+  "synthetic_positive_rate": 0.1508,
+  "test_rows": 1250,
+  "threshold": 0.5,
+  "roc_auc": 0.8107144288175663,
+  "average_precision": 0.508100662293348,
+  "precision": 0.34293193717277487,
+  "recall": 0.6968085106382979,
+  "f1": 0.45964912280701753,
+  "confusion_matrix_tn_fp_fn_tp": [
+    811,
+    251,
+    57,
+    131
+  ],
+  "classification_report": {
+    "0": {
+      "precision": 0.934331797235023,
+      "recall": 0.763653483992467,
+      "f1-score": 0.8404145077720208,
+      "support": 1062.0
+    },
+    "1": {
+      "precision": 0.34293193717277487,
+      "recall": 0.6968085106382979,
+      "f1-score": 0.45964912280701753,
+      "support": 188.0
+    },
+    "accuracy": 0.7536,
+    "macro avg": {
+      "precision": 0.638631867203899,
+      "recall": 0.7302309973153824,
+      "f1-score": 0.6500318152895191,
+      "support": 1250.0
+    },
+    "weighted avg": {
+      "precision": 0.8453852582816609,
+      "recall": 0.7536,
+      "f1-score": 0.7831473938732842,
+      "support": 1250.0
+    }
+  }
+}
