@@ -78,3 +78,9 @@ This is a retrospective case study of a historical project workflow. The origina
 Original employer code, customer data, internal endpoints, private infrastructure details, and credentials are intentionally excluded.
 
 **Portfolio note:** Any public implementation accompanying this case study should use independently written code and synthetic or appropriately licensed public data. Synthetic demonstration results must not be represented as results from the historical project.
+
+## Workflow at a glance
+
+The diagram below summarises the historical workflow.
+
+[View the churn modelling workflow diagram](docs/workflow.md)
